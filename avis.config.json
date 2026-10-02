@@ -2,20 +2,20 @@
   "reconnectSeconds": 5,
   "streams": {
     "mirror": {
-      "type": "mjpeg",
-      "url": "http://192.168.0.50:8080/stream.mjpeg"
+      "type": "avis-live",
+      "url": "http://192.168.0.160:8080"
     },
     "conveyor1": {
-      "type": "webrtc",
-      "url": "http://192.168.0.10:8889/conveyor1/whep"
+      "type": "vision",
+      "url": "http://192.168.0.92:8200/stream/1.mjpg"
     },
     "conveyor2": {
-      "type": "webrtc",
-      "url": "http://192.168.0.10:8889/conveyor2/whep"
+      "type": "vision",
+      "url": "http://192.168.0.92:8200/stream/2.mjpg"
     },
     "conveyor3": {
-      "type": "webrtc",
-      "url": "http://192.168.0.10:8889/conveyor3/whep"
+      "type": "vision",
+      "url": "http://192.168.0.92:8200/stream/3.mjpg"
     }
   },
   "demoVideos": [

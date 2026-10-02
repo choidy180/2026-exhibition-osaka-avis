@@ -49,10 +49,10 @@ npm run build && npm run start   # 전시장 운영 권장
 {
   "reconnectSeconds": 5,
   "streams": {
-    "mirror":    { "type": "mjpeg",  "url": "http://192.168.0.50:8080/stream.mjpeg" },
-    "conveyor1": { "type": "webrtc", "url": "http://192.168.0.10:8889/conveyor1/whep" },
-    "conveyor2": { "type": "webrtc", "url": "http://192.168.0.10:8889/conveyor2/whep" },
-    "conveyor3": { "type": "webrtc", "url": "http://192.168.0.10:8889/conveyor3/whep", "fit": "cover" }
+    "mirror":    { "type": "avis-live", "url": "http://192.168.0.160:8080" },
+    "conveyor1": { "type": "vision", "url": "http://192.168.0.92:8200/stream/1.mjpg" },
+    "conveyor2": { "type": "vision", "url": "http://192.168.0.92:8200/stream/2.mjpg" },
+    "conveyor3": { "type": "vision", "url": "http://192.168.0.92:8200/stream/3.mjpg" }
   }
 }
 ```
@@ -66,6 +66,8 @@ npm run build && npm run start   # 전시장 운영 권장
 | `type` | 용도 | `url` 예시 |
 | --- | --- | --- |
 | `mjpeg` | MJPEG 스트림 (`<img>`) | `http://<ip>:8080/stream.mjpeg` |
+| `avis-live` | 글래스 AVIS Live 화면 공유 (`/api/live` 중계 + MediaSource) | `http://<글래스 IP>:8080` |
+| `vision` | AVIS 비전 서버 MJPEG (`/api/vision` 중계 + canvas — 멈추면 3초 안에 감지해 재연결) | `http://<비전>:8200/stream/1.mjpg` |
 | `webrtc` | WHEP (지연 가장 낮음) | MediaMTX `http://<서버>:8889/<path>/whep` · go2rtc `http://<서버>:1984/api/webrtc?src=<name>` |
 | `hls` | HLS | `http://<서버>:8888/<path>/index.m3u8` |
 | `video` | mp4 등 일반 영상 주소 | `/videos/01-timecheck.mp4` |
@@ -78,7 +80,17 @@ npm run build && npm run start   # 전시장 운영 권장
 
 ### Vuzix M4000 미러링
 
-M4000 은 Android 기반이므로 화면 공유 앱으로 IP 스트림을 만들 수 있습니다.
+글래스의 AVIS 앱이 웹 화면 공유를 켜면 `http://<글래스 IP>:8080` 에서 화면을 내보냅니다 (현재 `http://192.168.0.160:8080`).
+`mirror` 에 `type: "avis-live"` 와 그 주소를 그대로 넣으면 됩니다.
+
+- 글래스는 `/status`(코덱 · 시청자 수) 와 `/stream`(fMP4 조각) 을 주며, 대시보드는 이를 MediaSource 로 재생합니다 (지연 약 0.2~0.5초).
+- 글래스가 CORS 를 열지 않아 브라우저가 직접 받을 수 없으므로, 대시보드 서버의 `/api/live/status` · `/api/live/stream` 이 중계합니다.
+  `avis.config.json` 에 등록된 `avis-live` 주소만 중계합니다.
+- **글래스는 동시 시청자가 3명까지입니다.** 다른 PC · 탭에서 `http://<글래스 IP>:8080` 을 열어 두면 그만큼 자리가 줄고,
+  넘치면 대시보드에 `stream HTTP 503` 이 뜹니다. 지금 몇 명이 보는지는 `curl http://<글래스 IP>:8080/status` 의 `viewers` 로 확인합니다.
+- 10초 동안 받은 데이터가 없으면 끊긴 것으로 보고 `reconnectSeconds` 뒤 다시 붙습니다. 화면을 떠나면 글래스 쪽 연결도 바로 닫습니다.
+
+#### 다른 방법 — ScreenStream
 
 1. M4000 에 **ScreenStream** 설치 → *Local (MJPEG)* 모드로 스트리밍 시작, PIN 은 끄기
 2. PC 브라우저에서 앱에 표시된 주소(`http://<M4000 IP>:8080`)를 열어 화면이 나오는지 확인
@@ -88,7 +100,29 @@ M4000 은 Android 기반이므로 화면 공유 앱으로 IP 스트림을 만들
 
 Vuzix View(PC 앱) + HDMI 캡처 / OBS 가상 카메라를 쓰는 경우엔 `type: "webcam"` 으로 연결할 수 있습니다.
 
+### 컨베이어 카메라 — AVIS 비전 서버
+
+비전이 박스 · 트랙 번호 · 기준선 · 상태 띠를 그린 화면을 MJPEG 로 내보냅니다 (자세한 내용은 [STREAM.md](STREAM.md)).
+비전에서 `./scripts/vision.sh multi --start --api` 가 떠 있으면 따로 띄울 것은 없습니다.
+
+| 키 | 주소 |
+| --- | --- |
+| `conveyor1` | `http://192.168.0.92:8200/stream/1.mjpg` |
+| `conveyor2` | `http://192.168.0.92:8200/stream/2.mjpg` |
+| `conveyor3` | `http://192.168.0.92:8200/stream/3.mjpg` |
+
+- 카메라 번호 = 컨베이어 번호입니다 (비전 쪽에서 USB 포트로 고정). 3대를 옆으로 붙인 화면은 `/stream/all.mjpg` 입니다.
+- 유선으로 바꿔 비전 IP 가 바뀌면 `avis.config.json` 의 세 주소만 고치고 새로고침합니다.
+- `vision` 타입은 `<img>` 대신 fetch 로 받아 canvas 에 그리므로, 3초 동안 새 프레임이 없으면 끊고 `reconnectSeconds` 뒤 다시 붙습니다. 화면을 떠나면 연결을 바로 닫습니다.
+- 영상은 대시보드 서버의 `/api/vision` 이 중계합니다 (`avis.config.json` 에 등록된 `vision` 주소만).
+  Safari(WebKit) 는 fetch 로 받은 `multipart/x-mixed-replace` 본문을 읽지 못하고 `Load failed` 로 끊기 때문에, 바이트는 그대로 두고 Content-Type 만 바꿔 넘깁니다.
+  덕분에 브라우저는 `localhost` 에만 붙으므로 macOS 의 브라우저 로컬 네트워크 권한과도 상관없습니다 (`next` 를 띄운 터미널 앱에는 권한이 있어야 합니다).
+- 브라우저는 같은 주소에 연결을 6개까지만 엽니다. 영상이 모두 대시보드 주소로 오므로, 4번 화면(카메라 3대)이 가장 많이 쓰며 3개입니다 — 같은 PC 에서 대시보드 탭을 여러 개 띄우지 마세요.
+- 연결 확인: `curl http://192.168.0.92:8200/streams` (목록 · 보는 사람 수 · 마지막 프레임), `curl -o f.jpg http://192.168.0.92:8200/frame/1.jpg`
+
 ### 컨베이어 IP 카메라 (RTSP)
+
+비전 서버 없이 IP 카메라를 직접 붙일 때 쓰는 방법입니다.
 
 브라우저는 RTSP 를 직접 재생하지 못하므로 [MediaMTX](https://github.com/bluenviron/mediamtx) 로 WebRTC 변환을 권장합니다.
 

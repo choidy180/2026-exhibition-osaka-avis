@@ -34,6 +34,19 @@ export const MediaFrame = styled.iframe<{ $fit?: "contain" | "cover" }>`
   ${fill}
 `;
 
+export const MediaCanvas = styled.canvas<{ $fit?: "contain" | "cover" }>`
+  ${fill}
+`;
+
+/** fetch 로 받은 조각을 이어 붙인다 (스트림 파서용) */
+export function concatBytes(a: Uint8Array<ArrayBuffer>, b: Uint8Array<ArrayBuffer>) {
+  if (a.length === 0) return b;
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a);
+  out.set(b, a.length);
+  return out;
+}
+
 export function errorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   return String(error);

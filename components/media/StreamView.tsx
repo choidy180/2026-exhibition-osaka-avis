@@ -9,6 +9,8 @@ import { useAvisConfig } from "@/lib/config/ConfigProvider";
 import type { StreamSource, StreamType } from "@/lib/config/types";
 import type { PlayerProps, PlayerStatus } from "./players/shared";
 import MjpegPlayer from "./players/MjpegPlayer";
+import VisionPlayer from "./players/VisionPlayer";
+import AvisLivePlayer from "./players/AvisLivePlayer";
 import WhepPlayer from "./players/WhepPlayer";
 import HlsPlayer from "./players/HlsPlayer";
 import UrlVideoPlayer from "./players/UrlVideoPlayer";
@@ -17,6 +19,8 @@ import WebcamPlayer from "./players/WebcamPlayer";
 
 const PLAYERS: Record<Exclude<StreamType, "none">, ComponentType<PlayerProps>> = {
   mjpeg: MjpegPlayer,
+  vision: VisionPlayer,
+  "avis-live": AvisLivePlayer,
   webrtc: WhepPlayer,
   hls: HlsPlayer,
   video: UrlVideoPlayer,
