@@ -1,0 +1,35 @@
+{
+  "reconnectSeconds": 5,
+  "streams": {
+    "mirror": {
+      "type": "mjpeg",
+      "url": "http://192.168.0.50:8080/stream.mjpeg"
+    },
+    "conveyor1": {
+      "type": "webrtc",
+      "url": "http://192.168.0.10:8889/conveyor1/whep"
+    },
+    "conveyor2": {
+      "type": "webrtc",
+      "url": "http://192.168.0.10:8889/conveyor2/whep"
+    },
+    "conveyor3": {
+      "type": "webrtc",
+      "url": "http://192.168.0.10:8889/conveyor3/whep"
+    }
+  },
+  "demoVideos": [
+    {
+      "src": "/videos/01-timecheck.mp4",
+      "title": { "ko": "타임체크", "ja": "タイムチェック", "en": "Time Check" }
+    },
+    {
+      "src": "/videos/02-idle-management.mp4",
+      "title": { "ko": "무작업관리", "ja": "非作業管理", "en": "Idle Time Management" }
+    },
+    {
+      "src": "/videos/03-defect-traceability.mp4",
+      "title": { "ko": "불량역추적", "ja": "不良トレーサビリティ", "en": "Defect Traceability" }
+    }
+  ]
+}
