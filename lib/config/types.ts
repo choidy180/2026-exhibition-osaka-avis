@@ -32,9 +32,18 @@ export interface DemoVideo {
   title: Record<Locale, string>;
 }
 
+/** 글래스의 현재 시연 단계 — 백엔드 `GET /v1/wearable/stage` (품목 정보의 작업 상태) */
+export interface WearableStageSource {
+  /** 예: `http://192.168.0.101:8100/v1/wearable/stage`. 비우면 작업 상태를 받지 않는다 */
+  url?: string;
+  /** 폴링 간격(초) */
+  pollSeconds: number;
+}
+
 export interface AvisConfig {
   /** 연결이 끊겼을 때 재연결까지 대기 시간(초) */
   reconnectSeconds: number;
   streams: Record<StreamKey, StreamSource>;
+  wearableStage: WearableStageSource;
   demoVideos: DemoVideo[];
 }

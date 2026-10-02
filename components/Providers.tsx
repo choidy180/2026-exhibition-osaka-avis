@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import { ConfigProvider } from "@/lib/config/ConfigProvider";
 import type { AvisConfig } from "@/lib/config/types";
 import { PlaylistProvider } from "@/lib/PlaylistProvider";
+import { StageTestProvider } from "@/lib/stage/StageTestProvider";
 import { GlobalStyle } from "./GlobalStyle";
 
 interface ProvidersProps {
@@ -22,7 +23,9 @@ export default function Providers({ locale, config, children }: ProvidersProps) 
       <GlobalStyle />
       <I18nProvider initialLocale={locale}>
         <ConfigProvider config={config}>
-          <PlaylistProvider>{children}</PlaylistProvider>
+          <StageTestProvider>
+            <PlaylistProvider>{children}</PlaylistProvider>
+          </StageTestProvider>
         </ConfigProvider>
       </I18nProvider>
     </ThemeProvider>

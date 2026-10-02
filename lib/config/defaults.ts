@@ -1,5 +1,12 @@
 import { LOCALES } from "@/lib/i18n/locales";
-import { STREAM_TYPES, type AvisConfig, type DemoVideo, type StreamKey, type StreamSource } from "./types";
+import {
+  STREAM_TYPES,
+  type AvisConfig,
+  type DemoVideo,
+  type StreamKey,
+  type StreamSource,
+  type WearableStageSource,
+} from "./types";
 
 export const DEFAULT_CONFIG: AvisConfig = {
   reconnectSeconds: 5,
@@ -9,6 +16,7 @@ export const DEFAULT_CONFIG: AvisConfig = {
     conveyor2: { type: "none" },
     conveyor3: { type: "none" },
   },
+  wearableStage: { pollSeconds: 1 },
   demoVideos: [
     {
       src: "/videos/01-timecheck.mp4",
@@ -42,6 +50,16 @@ function normalizeStream(raw: unknown, fallback: StreamSource): StreamSource {
   };
 }
 
+function normalizeWearableStage(raw: unknown): WearableStageSource {
+  const fallback = DEFAULT_CONFIG.wearableStage;
+  if (!isRecord(raw)) return fallback;
+  return {
+    url: typeof raw.url === "string" && raw.url.trim() ? raw.url.trim() : undefined,
+    pollSeconds:
+      typeof raw.pollSeconds === "number" && raw.pollSeconds >= 0.5 ? raw.pollSeconds : fallback.pollSeconds,
+  };
+}
+
 function normalizeVideo(raw: unknown): DemoVideo | null {
   if (!isRecord(raw) || typeof raw.src !== "string" || !raw.src) return null;
   const titles = isRecord(raw.title) ? raw.title : {};
@@ -70,5 +88,5 @@ export function normalizeConfig(raw: unknown): AvisConfig {
       ? Math.round(raw.reconnectSeconds)
       : DEFAULT_CONFIG.reconnectSeconds;
 
-  return { reconnectSeconds, streams, demoVideos };
+  return { reconnectSeconds, streams, wearableStage: normalizeWearableStage(raw.wearableStage), demoVideos };
 }

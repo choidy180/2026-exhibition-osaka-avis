@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang={locale} className={`${notoJp.variable} ${notoKr.variable} ${mono.variable}`}>
-      <body>
+      <body suppressHydrationWarning>
         <StyledComponentsRegistry>
           <Providers locale={locale} config={config}>
             <AppShell>{children}</AppShell>

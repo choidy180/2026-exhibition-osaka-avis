@@ -26,6 +26,7 @@ export const theme = {
     backdrop: "rgba(22, 26, 48, 0.38)",
     live: "#D92D45",
     ok: "#0B8457",
+    danger: "#D92D45",
     warn: "#B26B00",
     info: "#1769C2",
   },

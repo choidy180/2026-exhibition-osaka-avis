@@ -18,6 +18,10 @@
       "url": "http://192.168.0.92:8200/stream/3.mjpg"
     }
   },
+  "wearableStage": {
+    "url": "http://192.168.0.101:8100/v1/wearable/stage",
+    "pollSeconds": 1
+  },
   "demoVideos": [
     {
       "src": "/videos/01-timecheck.mp4",

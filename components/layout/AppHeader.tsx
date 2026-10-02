@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import styled from "styled-components";
-import { Maximize, Minimize, Settings } from "lucide-react";
+import styled, { css } from "styled-components";
+import { FlaskConical, Maximize, Minimize, Settings } from "lucide-react";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { useIsFullscreen } from "@/lib/hooks/useClientState";
+import { useStageTest } from "@/lib/stage/StageTestProvider";
 import SettingsDialog from "@/components/settings/SettingsDialog";
 import NavTabs from "./NavTabs";
 import HeaderClock from "./HeaderClock";
@@ -103,10 +104,26 @@ export const IconButton = styled.button`
   }
 `;
 
+/** 품목 정보 테스트 모드 — 켜 있는 동안 주황으로 표시 */
+const TestModeButton = styled(IconButton)<{ $active: boolean }>`
+  ${({ $active, theme }) =>
+    $active &&
+    css`
+      &,
+      &:hover {
+        color: ${theme.colors.warn};
+        border-color: color-mix(in srgb, ${theme.colors.warn} 55%, transparent);
+        background: color-mix(in srgb, ${theme.colors.warn} 10%, ${theme.colors.surface});
+      }
+    `}
+`;
+
 export default function AppHeader() {
   const { t } = useI18n();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isFullscreen = useIsFullscreen();
+  const stageTest = useStageTest();
+  const testMode = stageTest.sim !== null;
   const settingsButton = useRef<HTMLButtonElement>(null);
 
   const toggleFullscreen = () => {
@@ -155,6 +172,16 @@ export default function AppHeader() {
         >
           <Settings size={20} />
         </IconButton>
+        <TestModeButton
+          type="button"
+          onClick={stageTest.toggle}
+          $active={testMode}
+          aria-pressed={testMode}
+          aria-label={t.action.testMode}
+          title={t.action.testMode}
+        >
+          <FlaskConical size={19} />
+        </TestModeButton>
       </Tools>
 
       {settingsOpen && <SettingsDialog onClose={closeSettings} />}
